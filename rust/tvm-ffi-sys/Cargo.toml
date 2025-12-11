@@ -27,3 +27,6 @@ license = "Apache-2.0"
 [lib]
 name = "tvm_ffi_sys"
 crate-type = ["lib"]
+
+[build-dependencies]
+cmake = "0.1"
