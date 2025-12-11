@@ -45,5 +45,5 @@ fn main() {
         .very_verbose(true);
     let lib_dir = cfg.build().join("lib");
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
-    println!("cargo:rustc-link-lib=static=tvm_ffi_static");
+    println!("cargo:rustc-link-lib=dylib=tvm_ffi");
 }
