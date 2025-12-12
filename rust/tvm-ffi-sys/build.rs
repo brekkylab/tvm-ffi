@@ -34,14 +34,6 @@ fn main() {
     .define("TVM_FFI_BUILD_TESTS", option_value("TVM_FFI_BUILD_TESTS"))
         .define("USE_LIBBACTRACE", "OFF")
         .define("TVM_FFI_USE_LIBBACKTRACE", "OFF")
-        .define(
-            "USE_METAL",
-            std::env::var("USE_METAL").unwrap_or_else(|_| "ON".to_string()),
-        )
-        .define(
-            "USE_VULKAN",
-            std::env::var("USE_VULKAN").unwrap_or_else(|_| "OFF".to_string()),
-        )
         .very_verbose(true);
     let lib_dir = cfg.build().join("lib");
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
