@@ -30,12 +30,24 @@ fn option_value(key: &str) -> &str {
 fn main() {
     let cmake_source_path = PathBuf::new().join("..").join("..");
     let mut cfg = cmake::Config::new(cmake_source_path);
-    cfg.define("CMAKE_BUILD_TYPE", "Release")
-    .define("TVM_FFI_BUILD_TESTS", option_value("TVM_FFI_BUILD_TESTS"))
-        .define("USE_LIBBACTRACE", "OFF")
-        .define("TVM_FFI_USE_LIBBACKTRACE", "OFF")
-        .very_verbose(true);
+    cfg.very_verbose(true);
+
+    let profile = env::var("PROFILE").unwrap();
+    if profile == "debug" {
+        cfg.define("USE_LIBBACKTRACE", "ON")
+            .define("TVM_FFI_USE_LIBBACKTRACE", "ON");
+    } else {
+        cfg.define("USE_LIBBACKTRACE", "OFF")
+            .define("TVM_FFI_USE_LIBBACKTRACE", "OFF");
+    }
+
+    let build_testing = option_value("TVM_FFI_BUILD_TESTS");
+    cfg.define("TVM_FFI_BUILD_TESTS", &build_testing);
+
     let lib_dir = cfg.build().join("lib");
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
     println!("cargo:rustc-link-lib=dylib=tvm_ffi");
+    if build_testing == "ON" {
+        println!("cargo:rustc-link-lib=dylib=tvm_ffi_testing");
+    }
 }

@@ -88,7 +88,7 @@ macro (TVM_FFI_ADD_GTEST target_name)
     COMMAND ${target_name}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
-  target_link_libraries(${target_name} PRIVATE gtest_main)
+  target_link_libraries(${target_name} PRIVATE gtest_main gmock_main)
   gtest_discover_tests(
     ${target_name}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} TEST_DISCOVERY_TIMEOUT 600 DISCOVERY_MODE PRE_TEST
