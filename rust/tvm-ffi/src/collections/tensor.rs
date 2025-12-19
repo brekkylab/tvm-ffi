@@ -207,6 +207,14 @@ impl Tensor {
     pub fn device(&self) -> DLDevice {
         self.data.dltensor.device
     }
+
+    pub fn dltensor(&self) -> &DLTensor {
+        &self.data.dltensor
+    }
+
+    pub fn dltensor_mut(&mut self) -> &mut DLTensor {
+        &mut self.data.dltensor
+    }
 }
 
 struct TensorObjFromNDAlloc<TNDAlloc>
