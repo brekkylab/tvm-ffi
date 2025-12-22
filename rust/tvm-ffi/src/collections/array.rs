@@ -515,3 +515,29 @@ where
         Ok(TryFromTemp::into_value(temp))
     }
 }
+
+/// Helper function to get an item of type T from Array of Any.
+pub unsafe fn get_from_any_array<T: AnyCompatible>(array: Any, index: usize) -> crate::Result<T> {
+    let array_raw = Any::into_raw_ffi_any(array);
+    if array_raw.type_index != TypeIndex::kTVMFFIArray as i32 {
+        crate::bail!(
+            crate::error::TYPE_ERROR,
+            "The provided object is not a type of Array"
+        )
+    }
+
+    let array_ptr = array_raw.data_union.v_obj as *const ArrayObj;
+    let array_obj = &*array_ptr;
+
+    let array_data_base_ptr = array_obj.data as *const tvm_ffi_sys::TVMFFIAny;
+    let array_item = &*array_data_base_ptr.add(index);
+
+    match T::try_cast_from_any_view(array_item) {
+        Ok(item) => Ok(item),
+        Err(_) => crate::bail!(
+            crate::error::TYPE_ERROR,
+            "Failed to convert array item to {}",
+            T::type_str(),
+        ),
+    }
+}
