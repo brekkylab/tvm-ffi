@@ -50,4 +50,10 @@ fn main() {
     if build_testing == "ON" {
         println!("cargo:rustc-link-lib=dylib=tvm_ffi_testing");
     }
+
+    // Exports metadata to any crate that depends on this one
+    let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    println!("cargo:root={}", out.to_str().unwrap()); // DEP_TVM_FFI_ROOT
+    println!("cargo:lib={}/lib", out.to_str().unwrap()); // DEP_TVM_FFI_LIB
+    println!("cargo:include={}/include", out.to_str().unwrap()); // DEP_TVM_FFI_INCLUDE
 }
