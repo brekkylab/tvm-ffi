@@ -75,4 +75,36 @@ fn main() {
                 .status();
         }
     }
+
+    #[cfg(target_os = "windows")]
+    {
+        let dll_path = lib_dir.join("tvm_ffi.dll");
+        if dll_path.exists() {
+            let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+            // Copy to OUT_DIR
+            let _ = std::fs::copy(&dll_path, out_dir.join("tvm_ffi.dll"));
+
+            // Try to copy to the target/profile directory and deps folder
+            // This is a bit of a hack to find the target directory from OUT_DIR
+            // OUT_DIR is target/debug/build/tvm-ffi-sys-hash/out
+            let target_dir = out_dir.clone();
+            if let Some(build_dir_idx) = target_dir
+                .components()
+                .enumerate()
+                .find(|(_, c)| c.as_os_str() == "build")
+                .map(|(i, _)| i)
+            {
+                let mut path = PathBuf::new();
+                for (i, c) in target_dir.components().enumerate() {
+                    if i >= build_dir_idx {
+                        break;
+                    }
+                    path.push(c);
+                }
+                // path is now target/debug
+                let _ = std::fs::copy(&dll_path, path.join("tvm_ffi.dll"));
+                let _ = std::fs::copy(&dll_path, path.join("deps").join("tvm_ffi.dll"));
+            }
+        }
+    }
 }
