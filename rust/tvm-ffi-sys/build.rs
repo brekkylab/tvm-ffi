@@ -45,15 +45,34 @@ fn main() {
     cfg.define("TVM_FFI_BUILD_TESTS", &build_testing);
 
     let lib_dir = cfg.build().join("lib");
+
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
     println!("cargo:rustc-link-lib=dylib=tvm_ffi");
     if build_testing == "ON" {
         println!("cargo:rustc-link-lib=dylib=tvm_ffi_testing");
     }
 
-    // Exports metadata to any crate that depends on this one
-    let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-    println!("cargo:root={}", out.to_str().unwrap()); // DEP_TVM_FFI_ROOT
-    println!("cargo:lib={}/lib", out.to_str().unwrap()); // DEP_TVM_FFI_LIB
-    println!("cargo:include={}/include", out.to_str().unwrap()); // DEP_TVM_FFI_INCLUDE
+    // Set absolute path IDs for macOS and Linux to make linking easier
+    #[cfg(target_os = "macos")]
+    {
+        let lib_path = lib_dir.join("libtvm_ffi.dylib");
+        if lib_path.exists() {
+            let _ = std::process::Command::new("install_name_tool")
+                .arg("-id")
+                .arg(&lib_path)
+                .arg(&lib_path)
+                .status();
+        }
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let lib_path = lib_dir.join("libtvm_ffi.so");
+        if lib_path.exists() {
+            let _ = std::process::Command::new("patchelf")
+                .arg("--set-soname")
+                .arg(&lib_path)
+                .arg(&lib_path)
+                .status();
+        }
+    }
 }
